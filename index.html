@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Portfolio</title>
+</head>
+<body>
+<div style="font-size: 25px">Portfolio</div>
+</br>
+<div style="font-size: 18px">Calculate Profit</div>
+<form name="calcProfitForm">
+    From date: <input name="fromDate" placeholder="DD/MM/YYYY">
+    To date: <input name="toDate" placeholder="DD/MM/YYYY">
+    <button name="calculateButton">Calculate Profit</button>
+    </br>
+    </br>
+    Result: <input name="result" disabled>
+</form>
+</body>
+<script>
+    window.onload = function(){
+        let stock = function(){
+            return {
+                datePrices: {},
+                addPrice: function (date, price) {
+                    if (!date || !date.match(/^(0?[1-9]|[12][0-9]|[3][01])\/\b(0?[1-9]|[1][0-2])\b\/\d{4}$/)) {
+                        return "invalid date format"
+                    } else {
+                        this.datePrices[date.replaceAll("/", "")] = price;
+                        return "date added successfully";
+                    }
+                },
+                price: function (date) {
+                    if (!date || !date.match(/^(0?[1-9]|[12][0-9]|[3][01])\/\b(0?[1-9]|[1][0-2])\b\/\d{4}$/)) {
+                        return "invalida date format";
+                    } else {
+                        let formatedDateArr = date.split("/");
+                        formatedDateArr[0] = parseInt(formatedDateArr[0], 10);
+                        formatedDateArr[1] = parseInt(formatedDateArr[1], 10);
+                        let formatedDate = formatedDateArr.join("");
+                        return this.datePrices[formatedDate];
+                    }
+                }
+            }
+        }
+        let portfolio = {
+            stocks: [],
+            addStock: function(stock){
+                this.stocks.push(stock);
+            },
+            profit: function(fromDate, toDate){
+                if(!fromDate || !fromDate.match(/^(0?[1-9]|[12][0-9]|[3][01])\/\b(0?[1-9]|[1][0-2])\b\/\d{4}$/)){
+                    return "invalid from date format"
+                }else if(!toDate || !toDate.match(/^(0?[1-9]|[12][0-9]|[3][01])\/\b(0?[1-9]|[1][0-2])\b\/\d{4}$/)){
+                    return "invalid to date format"
+                }else{
+                    let initTotal = 0;
+                    let endTotal = 0;
+                    for(let i = 0;i<this.stocks.length;i++){
+                        initTotal += this.stocks[i].price(fromDate);
+                        endTotal += this.stocks[i].price(toDate);
+                    }
+
+                    let profit = (endTotal - initTotal)*100/initTotal;
+                    return profit.toFixed(2);
+                }
+            }
+        }
+        let stock1 = stock();
+        let stock2 = stock();
+        let stock3 = stock();
+        for(let i = 1; i<13;i++){
+            for(let j = 1;j<32;j++){
+                let date = j+"/"+i+"/2021"
+                stock1.addPrice(date,250+Math.round(Math.random()*250));
+                stock2.addPrice(date,200+Math.round(Math.random()*300));
+                stock3.addPrice(date,220+Math.round(Math.random()*320));
+            }
+        }
+        portfolio.addStock(stock1);
+        portfolio.addStock(stock2);
+        portfolio.addStock(stock3);
+
+        document.calcProfitForm.calculateButton.addEventListener("click", function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            let profit = portfolio.profit(document.calcProfitForm.fromDate.value,document.calcProfitForm.toDate.value);
+            document.calcProfitForm.result.value = profit+"%";
+        }, false);
+
+    }
+</script>
+</html>
